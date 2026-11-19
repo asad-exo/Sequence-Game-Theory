@@ -1,0 +1,19 @@
+{
+  "bots": [
+    "mixed",
+    "eager",
+    "save_wild",
+    "save_remove",
+    "mixed_save"
+  ],
+  "deals": 5000,
+  "seed": 300000,
+  "values": null,
+  "sequences_to_win": 2,
+  "max_turns": 500,
+  "mirror": true,
+  "games": 150000,
+  "python": "3.13.18",
+  "command": "python tournament.py --roster jacks --deals 5000 --seed 300000 --out results/jacks/games.csv.gz",
+  "started": "2026-11-19 03:45:10"
+}

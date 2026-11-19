@@ -1,0 +1,22 @@
+{
+  "bots": [
+    "expert",
+    "expert:adapt=0",
+    "expert:hand=0",
+    "expert:fork=0",
+    "expert:infer=0",
+    "expert:count=0,infer=0",
+    "counter",
+    "mixed_save"
+  ],
+  "deals": 3000,
+  "seed": 800000,
+  "values": null,
+  "sequences_to_win": 2,
+  "max_turns": 500,
+  "mirror": true,
+  "games": 216000,
+  "python": "3.13.18",
+  "command": "python tournament.py --bots expert expert:adapt=0 expert:hand=0 expert:fork=0 expert:infer=0 expert:count=0,infer=0 counter mixed_save --deals 3000 --seed 800000 --out results/ablation/games.csv.gz",
+  "started": "2026-11-19 05:29:51"
+}

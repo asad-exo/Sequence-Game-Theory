@@ -1,0 +1,533 @@
+{
+  "settings": {
+    "pool": [
+      "counter",
+      "bayes",
+      "forker",
+      "mixed_save"
+    ],
+    "iterations": 6,
+    "screen_deals": 400,
+    "confirm_deals": 4000,
+    "finalists": 4,
+    "random": 24,
+    "seed": 1500000,
+    "max_turns": 500
+  },
+  "start_pool": [
+    "counter",
+    "bayes",
+    "forker",
+    "mixed_save"
+  ],
+  "iterations": [
+    {
+      "iteration": 1,
+      "pool": [
+        "counter",
+        "bayes",
+        "forker",
+        "mixed_save"
+      ],
+      "mix": {
+        "counter": 1.0
+      },
+      "screened": 50,
+      "screening": {
+        "mixed:attack=0.5,jacks=save,count=1": {
+          "estimate": 0.50375,
+          "se": 0.0130653780660961
+        },
+        "mixed:attack=1.5,jacks=save,count=1": {
+          "estimate": 0.49,
+          "se": 0.01118314162664517
+        },
+        "mixed:attack=2,jacks=save,count=1": {
+          "estimate": 0.4825,
+          "se": 0.011972582504605008
+        },
+        "mixed:defend=0,jacks=save,count=1": {
+          "estimate": 0.435,
+          "se": 0.01411774687910064
+        },
+        "mixed:defend=0.25,jacks=save,count=1": {
+          "estimate": 0.46875,
+          "se": 0.014017393196670886
+        },
+        "mixed:defend=0.5,jacks=save,count=1": {
+          "estimate": 0.4825,
+          "se": 0.011972582504605008
+        },
+        "mixed:defend=1.5,jacks=save,count=1": {
+          "estimate": 0.4925,
+          "se": 0.011998720692041049
+        },
+        "mixed:defend=2,jacks=save,count=1": {
+          "estimate": 0.50375,
+          "se": 0.0130653780660961
+        },
+        "mixed:defend=3,jacks=save,count=1": {
+          "estimate": 0.4725,
+          "se": 0.012313139669527967
+        },
+        "mixed:count=1": {
+          "estimate": 0.43375,
+          "se": 0.014268806567198616
+        },
+        "mixed:jacks=save_wild,count=1": {
+          "estimate": 0.45875,
+          "se": 0.01189168297845811
+        },
+        "mixed:jacks=save_remove,count=1": {
+          "estimate": 0.45125,
+          "se": 0.014115388916379586
+        },
+        "mixed:jacks=eager,count=1": {
+          "estimate": 0.4075,
+          "se": 0.014612260962153161
+        },
+        "mixed:jacks=save,values=linear,count=1": {
+          "estimate": 0.39625,
+          "se": 0.014036377505742331
+        },
+        "mixed:jacks=save,values=flat,count=1": {
+          "estimate": 0.4525,
+          "se": 0.014508985203282573
+        },
+        "mixed:jacks=save,values=steep,count=1": {
+          "estimate": 0.46625,
+          "se": 0.012337762955124485
+        },
+        "mixed:jacks=save,center=5,count=1": {
+          "estimate": 0.5125,
+          "se": 0.008648489227303631
+        },
+        "mixed:jacks=save,center=10,count=1": {
+          "estimate": 0.5025,
+          "se": 0.009854041319469618
+        },
+        "mixed:jacks=save,center=20,count=1": {
+          "estimate": 0.50375,
+          "se": 0.010544206678845761
+        },
+        "mixed:jacks=save,fork=0.5,count=1": {
+          "estimate": 0.49875,
+          "se": 0.0021668714960053586
+        },
+        "mixed:jacks=save,fork=1,count=1": {
+          "estimate": 0.49875,
+          "se": 0.0021668714960053586
+        },
+        "mixed:jacks=save,fork=2,count=1": {
+          "estimate": 0.49875,
+          "se": 0.0021668714960053586
+        },
+        "mixed:jacks=save,hand=1,count=1": {
+          "estimate": 0.5025,
+          "se": 0.008849019032899157
+        },
+        "mixed:jacks=save,count=1,adapt=1": {
+          "estimate": 0.5,
+          "se": 0.01147078669352809
+        },
+        "mixed:jacks=save,count=1,phase=1": {
+          "estimate": 0.49,
+          "se": 0.011862833432304716
+        },
+        "mixed:jacks=save,count=1,read=1": {
+          "estimate": 0.49375,
+          "se": 0.009106159954822177
+        },
+        "mixed:defend=3,values=steep,center=20,fork=1,count=1,infer=1,phase=1": {
+          "estimate": 0.3975,
+          "se": 0.014003557550142407
+        },
+        "mixed:attack=2,defend=0.5,jacks=save,values=flat,center=20,fork=1,count=1,infer=1,read=1": {
+          "estimate": 0.475,
+          "se": 0.01376721979384837
+        },
+        "mixed:attack=1.5,defend=0.5,values=flat,fork=1,hand=1,count=1,infer=1": {
+          "estimate": 0.38,
+          "se": 0.014431586076787586
+        },
+        "mixed:defend=0,jacks=save_remove,hand=1,count=1,infer=1": {
+          "estimate": 0.395,
+          "se": 0.014933016690162499
+        },
+        "mixed:attack=1.5,defend=3,jacks=save,values=linear,center=10,fork=2,count=1,infer=1,read=1": {
+          "estimate": 0.43125,
+          "se": 0.014017393196670886
+        },
+        "mixed:attack=2,defend=0.5,jacks=eager,values=flat,center=5,fork=1,hand=1,count=1,infer=1,adapt=1": {
+          "estimate": 0.3625,
+          "se": 0.014034842964657868
+        },
+        "mixed:attack=0.5,defend=0,jacks=save_wild,center=10,fork=0.5,hand=1,count=1,adapt=1": {
+          "estimate": 0.50125,
+          "se": 0.012946142292228468
+        },
+        "mixed:attack=0.5,defend=0.5,jacks=save_remove,center=5,fork=1,count=1,adapt=1": {
+          "estimate": 0.44625,
+          "se": 0.014290745511280034
+        },
+        "mixed:attack=2,defend=0.25,jacks=save_remove,values=flat,hand=1": {
+          "estimate": 0.375,
+          "se": 0.014324821159551446
+        },
+        "mixed:attack=2,defend=1.5,jacks=eager,values=flat,center=5,hand=1,count=1,infer=1": {
+          "estimate": 0.36375,
+          "se": 0.01477152119268238
+        },
+        "mixed:attack=0.5,jacks=save_remove,values=steep,center=10,fork=2,hand=1,phase=1": {
+          "estimate": 0.45375,
+          "se": 0.015408874953035856
+        },
+        "mixed:attack=1.5,defend=3,jacks=save_remove,center=10,fork=1,phase=1": {
+          "estimate": 0.44125,
+          "se": 0.01424133535986286
+        },
+        "mixed:attack=0.5,defend=1.5,jacks=save,values=steep,center=5,fork=1,hand=1,count=1,infer=1": {
+          "estimate": 0.4925,
+          "se": 0.013121157988814042
+        },
+        "mixed:defend=0,values=linear,center=10,fork=1,count=1,infer=1,read=1": {
+          "estimate": 0.35875,
+          "se": 0.014653340736393258
+        },
+        "mixed:attack=0.5,jacks=eager,values=linear,center=5,read=1": {
+          "estimate": 0.26875,
+          "se": 0.014457476970442567
+        },
+        "mixed:defend=1.5,jacks=save_wild,values=steep,fork=2,hand=1,count=1,infer=1,read=1": {
+          "estimate": 0.44125,
+          "se": 0.013095316415805889
+        },
+        "mixed:attack=1.5,jacks=save,center=20,fork=2,hand=1,count=1,adapt=1": {
+          "estimate": 0.495,
+          "se": 0.011468055228626041
+        },
+        "mixed:attack=1.5,defend=2,values=linear,center=10,fork=1,hand=1,adapt=1": {
+          "estimate": 0.32875,
+          "se": 0.014164132531713327
+        },
+        "mixed:attack=0.5,defend=3,jacks=save_remove,values=flat,center=20,hand=1,read=1": {
+          "estimate": 0.37875,
+          "se": 0.014886659306684064
+        },
+        "mixed:attack=1.5,defend=0.25,jacks=eager,values=linear,center=5,fork=0.5,count=1,infer=1,adapt=1": {
+          "estimate": 0.315,
+          "se": 0.014228267955817966
+        },
+        "mixed:attack=0.5,defend=1.5,values=linear,fork=1,hand=1,count=1,adapt=1": {
+          "estimate": 0.32,
+          "se": 0.015131006854173738
+        },
+        "mixed:attack=0.5,values=flat,center=5,fork=1": {
+          "estimate": 0.3925,
+          "se": 0.014243122598411609
+        },
+        "mixed:defend=3,jacks=save_wild,center=5,hand=1,count=1,infer=1,read=1": {
+          "estimate": 0.46375,
+          "se": 0.012695680150595143
+        },
+        "mixed:defend=1.5,jacks=save_remove,values=flat,center=10,fork=2,hand=1,count=1,infer=1,adapt=1": {
+          "estimate": 0.42125,
+          "se": 0.013997264098945878
+        }
+      },
+      "finalists": [
+        {
+          "spec": "mixed:jacks=save,center=5,count=1",
+          "screening": 0.5125,
+          "confirmed": 0.49975,
+          "se": 0.003036616478073701
+        },
+        {
+          "spec": "mixed:attack=0.5,jacks=save,count=1",
+          "screening": 0.50375,
+          "confirmed": 0.510125,
+          "se": 0.0039796614831075815
+        },
+        {
+          "spec": "mixed:defend=2,jacks=save,count=1",
+          "screening": 0.50375,
+          "confirmed": 0.510125,
+          "se": 0.0039796614831075815
+        },
+        {
+          "spec": "mixed:jacks=save,center=20,count=1",
+          "screening": 0.50375,
+          "confirmed": 0.507125,
+          "se": 0.0038005321475947573
+        }
+      ],
+      "best": "mixed:attack=0.5,jacks=save,count=1",
+      "value": 0.510125,
+      "se": 0.0039796614831075815,
+      "added": true
+    },
+    {
+      "iteration": 2,
+      "pool": [
+        "counter",
+        "bayes",
+        "forker",
+        "mixed_save",
+        "mixed:attack=0.5,jacks=save,count=1"
+      ],
+      "mix": {
+        "mixed:attack=0.5,jacks=save,count=1": 1.0
+      },
+      "screened": 51,
+      "screening": {
+        "mixed:attack=1.5,jacks=save,count=1": {
+          "estimate": 0.4975,
+          "se": 0.01276289951421796
+        },
+        "mixed:attack=2,jacks=save,count=1": {
+          "estimate": 0.50375,
+          "se": 0.012823355249295097
+        },
+        "mixed:attack=0.5,defend=0,jacks=save,count=1": {
+          "estimate": 0.45,
+          "se": 0.01448791735804127
+        },
+        "mixed:attack=0.5,defend=0.25,jacks=save,count=1": {
+          "estimate": 0.50375,
+          "se": 0.012823355249295097
+        },
+        "mixed:attack=0.5,defend=0.5,jacks=save,count=1": {
+          "estimate": 0.50375,
+          "se": 0.0130653780660961
+        },
+        "mixed:attack=0.5,defend=1.5,jacks=save,count=1": {
+          "estimate": 0.485,
+          "se": 0.011849621674744997
+        },
+        "mixed:attack=0.5,defend=2,jacks=save,count=1": {
+          "estimate": 0.475,
+          "se": 0.013186060080673374
+        },
+        "mixed:attack=0.5,defend=3,jacks=save,count=1": {
+          "estimate": 0.44375,
+          "se": 0.01359187962458921
+        },
+        "mixed:attack=0.5,count=1": {
+          "estimate": 0.4375,
+          "se": 0.014256313731221248
+        },
+        "mixed:attack=0.5,jacks=save_wild,count=1": {
+          "estimate": 0.47125,
+          "se": 0.01310727260867398
+        },
+        "mixed:attack=0.5,jacks=save_remove,count=1": {
+          "estimate": 0.4725,
+          "se": 0.013868677859259323
+        },
+        "mixed:attack=0.5,jacks=eager,count=1": {
+          "estimate": 0.435,
+          "se": 0.014768472142491884
+        },
+        "mixed:attack=0.5,jacks=save,values=linear,count=1": {
+          "estimate": 0.36375,
+          "se": 0.01477152119268238
+        },
+        "mixed:attack=0.5,jacks=save,values=flat,count=1": {
+          "estimate": 0.44,
+          "se": 0.01383758276368581
+        },
+        "mixed:attack=0.5,jacks=save,values=steep,count=1": {
+          "estimate": 0.47125,
+          "se": 0.013918707547739436
+        },
+        "mixed:attack=0.5,jacks=save,center=5,count=1": {
+          "estimate": 0.50375,
+          "se": 0.010544206678845761
+        },
+        "mixed:attack=0.5,jacks=save,center=10,count=1": {
+          "estimate": 0.51875,
+          "se": 0.011636025372358269
+        },
+        "mixed:attack=0.5,jacks=save,center=20,count=1": {
+          "estimate": 0.5,
+          "se": 0.013006649542861801
+        },
+        "mixed:attack=0.5,jacks=save,fork=0.5,count=1": {
+          "estimate": 0.50125,
+          "se": 0.0037541747855956314
+        },
+        "mixed:attack=0.5,jacks=save,fork=1,count=1": {
+          "estimate": 0.50125,
+          "se": 0.0037541747855956314
+        },
+        "mixed:attack=0.5,jacks=save,fork=2,count=1": {
+          "estimate": 0.50125,
+          "se": 0.0037541747855956314
+        },
+        "mixed:attack=0.5,jacks=save,hand=1,count=1": {
+          "estimate": 0.5,
+          "se": 0.010320672978387457
+        },
+        "mixed:attack=0.5,jacks=save": {
+          "estimate": 0.48625,
+          "se": 0.010960848244346282
+        },
+        "mixed:attack=0.5,jacks=save,count=1,infer=1": {
+          "estimate": 0.49375,
+          "se": 0.00572685217546245
+        },
+        "mixed:attack=0.5,jacks=save,count=1,adapt=1": {
+          "estimate": 0.52,
+          "se": 0.013673602983353215
+        },
+        "mixed:attack=0.5,jacks=save,count=1,phase=1": {
+          "estimate": 0.495,
+          "se": 0.013477447978383189
+        },
+        "mixed:attack=0.5,jacks=save,count=1,read=1": {
+          "estimate": 0.49125,
+          "se": 0.008569111267791982
+        },
+        "mixed:defend=0,jacks=eager,values=flat,count=1,adapt=1": {
+          "estimate": 0.35875,
+          "se": 0.014759851856202438
+        },
+        "mixed:attack=0.5,defend=0.5,jacks=save_wild,values=flat,center=5,fork=1,hand=1,count=1,read=1": {
+          "estimate": 0.3975,
+          "se": 0.013548737791371872
+        },
+        "mixed:jacks=eager,values=flat,center=20,hand=1,count=1,read=1": {
+          "estimate": 0.34125,
+          "se": 0.014844510516726478
+        },
+        "mixed:jacks=save_wild,values=steep,fork=0.5,hand=1,count=1,read=1": {
+          "estimate": 0.41875,
+          "se": 0.01429403344863081
+        },
+        "mixed:values=flat,center=10,fork=0.5,count=1,infer=1,phase=1": {
+          "estimate": 0.39375,
+          "se": 0.014752421108802058
+        },
+        "mixed:attack=1.5,defend=3,jacks=save_wild,values=steep,fork=2,hand=1,count=1,infer=1": {
+          "estimate": 0.42875,
+          "se": 0.01506447608945044
+        },
+        "mixed:attack=0.5,values=flat,center=5,fork=1,hand=1,count=1,phase=1": {
+          "estimate": 0.39,
+          "se": 0.014736618329844155
+        },
+        "mixed:attack=0.5,defend=0,jacks=save_wild,values=linear,fork=0.5,count=1,infer=1,adapt=1": {
+          "estimate": 0.3275,
+          "se": 0.014508985203282577
+        },
+        "mixed:attack=0.5,jacks=save_wild,values=steep,hand=1,count=1,infer=1": {
+          "estimate": 0.41125,
+          "se": 0.015143295289684356
+        },
+        "mixed:attack=1.5,defend=0.25,fork=2,hand=1,count=1": {
+          "estimate": 0.4025,
+          "se": 0.015571304982149628
+        },
+        "mixed:attack=0.5,defend=3,jacks=eager,values=linear,center=20,fork=0.5,count=1,infer=1,adapt=1": {
+          "estimate": 0.30125,
+          "se": 0.014691773694340457
+        },
+        "mixed:attack=0.5,defend=0.25,jacks=eager,center=10,fork=2,hand=1,read=1": {
+          "estimate": 0.415,
+          "se": 0.015248567047184506
+        },
+        "mixed:defend=3,jacks=save,values=flat,center=10,hand=1,count=1,phase=1": {
+          "estimate": 0.42,
+          "se": 0.013923349062736559
+        },
+        "mixed:attack=1.5,defend=0,values=flat": {
+          "estimate": 0.3375,
+          "se": 0.014582214421808815
+        },
+        "mixed:attack=1.5,defend=0.5,jacks=eager,values=linear,center=10,count=1,infer=1,adapt=1": {
+          "estimate": 0.29125,
+          "se": 0.013896181251820896
+        },
+        "mixed:attack=2,defend=0,jacks=save_wild,values=linear,center=10,fork=1,read=1": {
+          "estimate": 0.35125,
+          "se": 0.014466142088244992
+        },
+        "mixed:defend=3,jacks=eager,center=5,count=1,infer=1,read=1": {
+          "estimate": 0.425,
+          "se": 0.013992926963738906
+        },
+        "mixed:attack=1.5,defend=0.5,values=steep,center=20,fork=0.5,hand=1,phase=1": {
+          "estimate": 0.41625,
+          "se": 0.015317110642876327
+        },
+        "mixed:jacks=save_remove,values=linear,center=5,hand=1,count=1,infer=1,adapt=1": {
+          "estimate": 0.34375,
+          "se": 0.014592281536864884
+        },
+        "mixed:attack=2,jacks=save,values=steep,center=10,fork=2,hand=1,phase=1": {
+          "estimate": 0.4725,
+          "se": 0.014313334827520518
+        },
+        "mixed:attack=1.5,defend=3,jacks=save_wild,values=linear,center=20,fork=1,read=1": {
+          "estimate": 0.3875,
+          "se": 0.01436576880237212
+        },
+        "mixed:attack=0.5,defend=2,values=flat,center=10,fork=0.5,read=1": {
+          "estimate": 0.3825,
+          "se": 0.014697769765859906
+        },
+        "mixed:attack=1.5,jacks=eager,fork=0.5,count=1": {
+          "estimate": 0.3975,
+          "se": 0.014335205624641453
+        },
+        "mixed:attack=1.5,defend=2,jacks=save,center=10,fork=2,hand=1,count=1,infer=1,read=1": {
+          "estimate": 0.50375,
+          "se": 0.012944932287572023
+        }
+      },
+      "finalists": [
+        {
+          "spec": "mixed:attack=0.5,jacks=save,count=1,adapt=1",
+          "screening": 0.52,
+          "confirmed": 0.48925,
+          "se": 0.003961537936295091
+        },
+        {
+          "spec": "mixed:attack=0.5,jacks=save,center=10,count=1",
+          "screening": 0.51875,
+          "confirmed": 0.5035,
+          "se": 0.003848784325627548
+        },
+        {
+          "spec": "mixed:attack=2,jacks=save,count=1",
+          "screening": 0.50375,
+          "confirmed": 0.4985,
+          "se": 0.00420610988207453
+        },
+        {
+          "spec": "mixed:attack=0.5,defend=0.25,jacks=save,count=1",
+          "screening": 0.50375,
+          "confirmed": 0.4985,
+          "se": 0.00420610988207453
+        }
+      ],
+      "best": "mixed:attack=0.5,jacks=save,center=10,count=1",
+      "value": 0.5035,
+      "se": 0.003848784325627548,
+      "added": false
+    }
+  ],
+  "final": {
+    "pool": [
+      "counter",
+      "bayes",
+      "forker",
+      "mixed_save",
+      "mixed:attack=0.5,jacks=save,count=1"
+    ],
+    "mix": {
+      "mixed:attack=0.5,jacks=save,count=1": 1.0
+    },
+    "games": 216800
+  }
+}

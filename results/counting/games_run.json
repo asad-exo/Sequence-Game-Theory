@@ -1,0 +1,17 @@
+{
+  "bots": [
+    "counter",
+    "bayes",
+    "mixed_save"
+  ],
+  "deals": 15000,
+  "seed": 700000,
+  "values": null,
+  "sequences_to_win": 2,
+  "max_turns": 500,
+  "mirror": false,
+  "games": 90000,
+  "python": "3.13.18",
+  "command": "python tournament.py --bots counter bayes mixed_save --deals 15000 --seed 700000 --no-mirror --out results/counting/games.csv.gz",
+  "started": "2026-11-19 04:50:16"
+}

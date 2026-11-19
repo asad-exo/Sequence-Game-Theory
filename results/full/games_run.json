@@ -1,0 +1,32 @@
+{
+  "bots": [
+    "random",
+    "builder",
+    "blocker",
+    "mixed",
+    "mixed_save",
+    "save_wild",
+    "save_remove",
+    "eager",
+    "center",
+    "forker",
+    "planner",
+    "counter",
+    "bayes",
+    "adaptive",
+    "phase",
+    "reader",
+    "logit",
+    "expert"
+  ],
+  "deals": 3000,
+  "seed": 200000,
+  "values": null,
+  "sequences_to_win": 2,
+  "max_turns": 500,
+  "mirror": true,
+  "games": 1026000,
+  "python": "3.13.18",
+  "command": "python tournament.py --deals 3000 --seed 200000 --out results/full/games.csv.gz",
+  "started": "2026-11-19 02:57:40"
+}
