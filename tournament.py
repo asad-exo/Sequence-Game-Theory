@@ -1,23 +1,28 @@
 """Round-robin tournament between bots, logged game by game to a CSV.
 
     python tournament.py --deals 1000                    # all 18 fast strategies
-    python tournament.py --roster pilot --deals 5000 --out results/full_run/games.csv
+    python tournament.py --roster pilot --deals 5000 --out results/pilot/games.csv.gz
     python tournament.py --roster jacks --deals 2000 --out results/jacks/games.csv
     python tournament.py --bots mixed_save mixed_save:defend=0.5 counter --deals 500
     python tournament.py --roster pilot --values steep --out results/values_steep/games.csv
     python tournament.py --roster pilot --sequences-to-win 1 --out results/one_sequence/games.csv
+    python tournament.py --bots mixed_save sampler --deals 100 --no-mirror --out results/sampler/games.csv.gz
 
 Design:
 - Duplicate format: every deal (seed) is played twice for each pair of bots,
   once with each bot moving first, so neither bot benefits from a lucky deal.
 - Mirror matches (a bot against a copy of itself) are played on 2 x deals
-  different deals; they measure the first-move advantage.
+  different deals; they measure the first-move advantage. --no-mirror skips them.
 - Every game is reproducible from its seed: `python play.py A B --seed S`.
 - The settings of the run are saved next to the CSV (games_run.json).
+- An --out path ending in .gz writes a gzip-compressed CSV (about 6x smaller);
+  analysis.py and compare_runs.py read either kind.
 """
 
 import argparse
 import csv
+import gzip
+import io
 import itertools
 import json
 import os
@@ -37,17 +42,34 @@ FIELDS = [
 ]
 
 
-def schedule(bots, deals, base_seed=2026):
+def schedule(bots, deals, base_seed=2026, mirror=True):
     """All games to play, as (game_id, seat0, seat1, seed) tuples."""
     games = []
     for a, b in itertools.combinations(bots, 2):
         for d in range(deals):
             games.append((a, b, base_seed + d))
             games.append((b, a, base_seed + d))
-    for a in bots:
-        for d in range(2 * deals):
-            games.append((a, a, base_seed + d))
+    if mirror:
+        for a in bots:
+            for d in range(2 * deals):
+                games.append((a, a, base_seed + d))
     return [(i, *g) for i, g in enumerate(games)]
+
+
+def open_csv(path, mode="r"):
+    """Open a CSV as text for reading ("r") or writing ("w").
+
+    Paths ending in .gz are gzip-compressed. They are written with a fixed
+    timestamp, so the same games always give the same bytes."""
+    if path.endswith(".gz"):
+        return io.TextIOWrapper(gzip.GzipFile(path, mode + "b", mtime=0), encoding="utf-8", newline="")
+    return open(path, mode, newline="", encoding="utf-8")
+
+
+def run_info_path(csv_path):
+    """Where a run's settings are saved: results/x/games.csv(.gz) -> results/x/games_run.json."""
+    base = csv_path[:-3] if csv_path.endswith(".gz") else csv_path
+    return os.path.splitext(base)[0] + "_run.json"
 
 
 def encode_sequences(sequences):
@@ -123,9 +145,12 @@ def main(argv=None):
     parser.add_argument("--sequences-to-win", type=int, default=2,
                         help="rule variant: sequences needed to win (default: %(default)s)")
     parser.add_argument("--max-turns", type=int, default=500, help="plies before a game is a draw")
+    parser.add_argument("--no-mirror", action="store_true",
+                        help="skip mirror matches (each bot against itself), e.g. for slow bots")
     parser.add_argument("--workers", type=int, default=os.cpu_count() or 1,
                         help="parallel processes (default: all cores)")
-    parser.add_argument("--out", default=os.path.join("results", "games.csv"))
+    parser.add_argument("--out", default=os.path.join("results", "games.csv"),
+                        help="CSV to write; end it in .gz to compress (default: %(default)s)")
     args = parser.parse_args(argv)
 
     bots = args.bots or (DEFAULT_BOTS if args.roster == "full" else ROSTERS[args.roster])
@@ -139,11 +164,13 @@ def main(argv=None):
     if args.sequences_to_win < 1:
         parser.error("--sequences-to-win must be at least 1")
 
+    mirror = not args.no_mirror
     jobs = [(*g, args.max_turns, args.values, args.sequences_to_win)
-            for g in schedule(bots, args.deals, args.seed)]
+            for g in schedule(bots, args.deals, args.seed, mirror=mirror)]
     pairs = len(bots) * (len(bots) - 1) // 2
-    print(f"{len(jobs):,} games: {pairs} pairings x {2 * args.deals:,} games, "
-          f"plus {len(bots)} mirror matches x {2 * args.deals:,} games, on {args.workers} worker(s)")
+    mirrors = f"plus {len(bots)} mirror matches x {2 * args.deals:,} games" if mirror else "no mirror matches"
+    print(f"{len(jobs):,} games: {pairs} pairings x {2 * args.deals:,} games, {mirrors}, "
+          f"on {args.workers} worker(s)")
     if args.values or args.sequences_to_win != 2:
         print(f"Variant: line values = {args.values or 'per bot'}, "
               f"sequences to win = {args.sequences_to_win}")
@@ -152,17 +179,17 @@ def main(argv=None):
     info = {
         "bots": bots, "deals": args.deals, "seed": args.seed, "values": args.values,
         "sequences_to_win": args.sequences_to_win, "max_turns": args.max_turns,
-        "games": len(jobs), "python": platform.python_version(),
+        "mirror": mirror, "games": len(jobs), "python": platform.python_version(),
         "command": "python tournament.py " + " ".join(sys.argv[1:] if argv is None else argv),
         "started": time.strftime("%Y-%m-%d %H:%M:%S"),
     }
-    with open(os.path.splitext(args.out)[0] + "_run.json", "w") as f:
+    with open(run_info_path(args.out), "w") as f:
         json.dump(info, f, indent=2)
 
     start = time.time()
     step = max(1, len(jobs) // 20)
     done = 0
-    with open(args.out, "w", newline="") as f:
+    with open_csv(args.out, "w") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDS)
         writer.writeheader()
 

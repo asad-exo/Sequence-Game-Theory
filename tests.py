@@ -6,8 +6,10 @@ Cells are row * 10 + col, so cell 45 is row 4, column 5.
 """
 
 import csv
+import json
 import os
 import random
+import tempfile
 import unittest
 from collections import Counter
 
@@ -16,9 +18,27 @@ from bots import DEFAULT_BOTS, ROSTERS, make_bot
 from game import EMPTY, Game, Move, play_game, seat_rngs
 from scoring import (VALUE_SCALES, CardInfo, adaptive_weights, counted_placement_value,
                      inferred_gap_chances, observe_opponent, phase_weights, placement_value)
-from tournament import FIELDS, run_game, schedule
+from tournament import FIELDS, open_csv, run_game, run_info_path, schedule
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+RESULTS = os.path.join(HERE, "results")
+
+
+def published_logs():
+    """Every game log under results/, with its run settings: [(path, settings)]."""
+    logs = []
+    for name in sorted(os.listdir(RESULTS)) if os.path.isdir(RESULTS) else []:
+        for file in ("games.csv.gz", "games.csv"):
+            path = os.path.join(RESULTS, name, file)
+            if os.path.exists(path):
+                info_path = run_info_path(path)
+                info = {}
+                if os.path.exists(info_path):
+                    with open(info_path, encoding="utf-8") as f:
+                        info = json.load(f)
+                logs.append((path, info))
+                break
+    return logs
 
 
 def empty_game(seed=0):
@@ -469,6 +489,22 @@ class ScriptTests(unittest.TestCase):
             self.assertIn(("b", "a", seed), ab)
         mirror = [seed for _, s0, s1, seed in games if s0 == s1 == "a"]
         self.assertEqual(mirror, list(range(10, 18)))
+        no_mirror = schedule(bots, deals=4, base_seed=10, mirror=False)
+        self.assertEqual(no_mirror, games[:4 * 3 * 2])
+
+    def test_compressed_csv_round_trip(self):
+        rows = [run_game((i, "mixed", "builder", 30 + i, 500)) for i in range(3)]
+        with tempfile.TemporaryDirectory() as folder:
+            for name in ("games.csv", "games.csv.gz"):
+                path = os.path.join(folder, name)
+                with open_csv(path, "w") as f:
+                    writer = csv.DictWriter(f, fieldnames=FIELDS)
+                    writer.writeheader()
+                    writer.writerows(rows)
+                with open_csv(path) as f:
+                    back = list(csv.DictReader(f))
+                self.assertEqual(back, [{k: str(v) for k, v in row.items()} for row in rows])
+                self.assertEqual(run_info_path(path), os.path.join(folder, "games_run.json"))
 
     def test_run_game_records_every_field(self):
         for job in ((0, "mixed", "counter", 11, 500), (1, "eager", "mixed_save", 12, 500, "flat", 1)):
@@ -486,18 +522,40 @@ class ScriptTests(unittest.TestCase):
         for seed in range(50):
             make_bot(hunt.spec_of(hunt.random_settings(random.Random(seed))))
 
-    def test_pilot_games_reproduce(self):
-        """The current engine replays the pilot tournament exactly (every 500th game,
-        which covers every pairing and the mirror matches)."""
-        path = os.path.join(HERE, "results", "full_run", "games.csv")
-        if not os.path.exists(path):
-            self.skipTest("results/full_run/games.csv not found")
-        with open(path, newline="") as f:
-            rows = [row for i, row in enumerate(csv.DictReader(f)) if i % 500 == 0]
-        for old in rows:
-            new = run_game((int(old["game_id"]), old["seat0"], old["seat1"], int(old["seed"]), 500))
-            for key, value in old.items():
-                self.assertEqual(str(new[key]), value, f"game {old['game_id']}, column {key}")
+    def test_published_games_reproduce(self):
+        """The current code replays every published game log under results/ exactly.
+
+        From each log it replays about 200 games spread evenly through the file, with
+        that run's own settings (line values, sequences to win). The spacing is never
+        more than one pairing's block of games, so every pairing and every mirror
+        match is covered. Games with the slow lookahead bot take seconds each, so only
+        the first one sampled from each log is replayed."""
+        logs = published_logs()
+        if not logs:
+            self.skipTest("no results/*/games.csv(.gz) found")
+        for path, info in logs:
+            step = 1000
+            if "games" in info and "deals" in info:
+                step = max(1, min(2 * info["deals"], info["games"] // 200))
+            with open_csv(path) as f:
+                reader = csv.reader(f)
+                header = next(reader)
+                sample = [dict(zip(header, row)) for i, row in enumerate(reader) if i % step == 0]
+            checked = slow = 0
+            for old in sample:
+                if "sampler" in old["seat0"] or "sampler" in old["seat1"]:
+                    if slow:
+                        continue
+                    slow += 1
+                job = (int(old["game_id"]), old["seat0"], old["seat1"], int(old["seed"]),
+                       int(info.get("max_turns", 500)), info.get("values"),
+                       int(info.get("sequences_to_win", 2)))
+                new = run_game(job)
+                for key, value in old.items():
+                    self.assertEqual(str(new[key]), value,
+                                     f"{os.path.relpath(path, HERE)}: game {old['game_id']}, column {key}")
+                checked += 1
+            self.assertGreater(checked, 0, path)
 
 
 class CardLabelTests(unittest.TestCase):

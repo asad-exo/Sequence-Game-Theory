@@ -1,6 +1,7 @@
 """Analyse a tournament CSV with game theory.
 
     python analysis.py results/games.csv            # writes summary.md and the charts next to the CSV
+    python analysis.py results/full/games.csv.gz    # compressed logs work too
     python analysis.py results/games.csv --out figs
 
 Or step by step in a notebook:
@@ -14,15 +15,16 @@ What it computes:
 - Win-rate matrix: how often each bot (row) beats each opponent (column). This is
   the payoff matrix of the "meta-game" where each player picks a bot.
 - Equilibrium: the mix of bots no opponent can exploit (a Nash equilibrium of that
-  symmetric zero-sum meta-game), plus a bootstrap showing how stable it is.
+  symmetric zero-sum meta-game), plus a bootstrap showing how stable it is, and each
+  bot's win rate against that mix (Nash averaging).
 - Best responses, bots that beat everyone, and rock-paper-scissors cycles, with
   Holm-corrected tests so that many pairings don't produce false alarms.
 - How much of the matrix is a skill ladder and how much is cycles.
 - Replicator dynamics: which bots take over a population that copies winners.
 - Each bot against mixed_save (the pilot champion), and the Jack-timing variants
   against mixed.
-- First-move advantage from mirror matches; what each bot's Jacks achieved; which
-  squares win games, with and without the board's geometry factored out.
+- First-move advantage from mirror matches; game lengths; what each bot's Jacks
+  achieved; which squares win games, with and without the board's geometry factored out.
 - A convergence chart: how the headline estimate settles as deals accumulate.
 """
 
@@ -35,6 +37,7 @@ import numpy as np
 import pandas as pd
 
 from board import CELL_CARD, CORNERS, LINES_THROUGH, SIZE, pretty
+from tournament import run_info_path
 
 Z = 1.96  # 95% confidence intervals
 
@@ -42,7 +45,8 @@ Z = 1.96  # 95% confidence intervals
 # ---- loading ------------------------------------------------------------------
 
 def load_games(path):
-    """Read a tournament CSV. Adds `score0`: 1 if seat 0 won, 0.5 for a draw, 0 if it lost."""
+    """Read a tournament CSV (plain or .csv.gz). Adds `score0`: 1 if seat 0 won,
+    0.5 for a draw, 0 if it lost."""
     games = pd.read_csv(path)
     games[["seqs0", "seqs1"]] = games[["seqs0", "seqs1"]].fillna("").astype(str)
     games["score0"] = games["winner_seat"].map({0: 1.0, 1: 0.0, -1: 0.5})
@@ -118,6 +122,15 @@ def equilibrium(M):
     mix = np.clip(result.x[:n], 0, None)
     mix[mix < 1e-9] = 0.0
     return pd.Series(mix / mix.sum(), index=M.index), result.x[-1]
+
+
+def nash_average(M, mix):
+    """Each bot's win rate against the equilibrium mix (Balduzzi et al. 2018).
+
+    Every bot in the mix's support scores exactly 50% (the game's value); bots
+    outside it score less. Unlike the average against the field, adding copies of
+    weak bots to the tournament can't change it."""
+    return pd.Series(M.to_numpy(dtype=float) @ mix.reindex(M.columns).to_numpy(dtype=float), index=M.index)
 
 
 def nashpy_check(M):
@@ -242,7 +255,8 @@ def replicator(M, t_end=300.0, points=3001):
     times = np.linspace(0.0, t_end, points)
     shares = nashpy.Game(M.to_numpy(dtype=float)).replicator_dynamics(
         y0=np.full(n, 1.0 / n), timepoints=times)
-    return pd.DataFrame(shares, index=times, columns=M.index)
+    shares = np.clip(shares, 0.0, None)  # the ODE solver can undershoot 0 by a hair
+    return pd.DataFrame(shares / shares.sum(axis=1, keepdims=True), index=times, columns=M.index)
 
 
 # ---- other questions -------------------------------------------------------------
@@ -264,6 +278,21 @@ def first_move(games, bots=None):
             for bot in bots if (mirror["seat0"] == bot).any()]
     rows.append(_estimate("all other games", games.loc[games["mirror"] == 0, "score0"]))
     return pd.DataFrame(rows).set_index("games")
+
+
+def game_lengths(games, bots=None):
+    """Median game length (plies) per bot: in its games against other bots, and in
+    its mirror matches."""
+    bots = bots or bot_order(games)
+    pairs = games[games["mirror"] == 0]
+    mirror = games[games["mirror"] == 1]
+    rows = []
+    for bot in bots:
+        mine = pairs[(pairs["seat0"] == bot) | (pairs["seat1"] == bot)]["turns"]
+        own = mirror.loc[mirror["seat0"] == bot, "turns"]
+        rows.append({"bot": bot, "vs_others": mine.median() if len(mine) else np.nan,
+                     "mirror": own.median() if len(own) else np.nan})
+    return pd.DataFrame(rows).set_index("bot")
 
 
 def jack_usage(games, bots=None):
@@ -463,7 +492,7 @@ def plot_win_matrix(M, path):
     bar.set_label("Bot's win rate", color=INK2)
     _titles(fig, ax, "Win rate of each bot (row) against each opponent (column)",
             "Blue: the row bot wins more often than not. Red: it loses more often. Draws count as half.")
-    fig.savefig(path, dpi=200, bbox_inches="tight", pad_inches=0.25)
+    fig.savefig(path, dpi=200 if n <= 8 else 130, bbox_inches="tight", pad_inches=0.25)
     plt.close(fig)
 
 
@@ -664,14 +693,18 @@ def summarize(games, out_dir, make_charts=True, run_info=None):
 
         mix, value = equilibrium(M)
         boot = bootstrap_equilibrium(M, half)
+        against_mix = nash_average(M, mix)
         out += ["", "## Equilibrium of the meta-game", "",
                 "If each player secretly picks a bot, this mix of bots can't be exploited: no single "
                 "bot wins more than 50% against it. The bootstrap redraws every win rate within its "
-                "margin 500 times and re-solves, to show how stable the answer is.", ""]
+                "margin 500 times and re-solves, to show how stable the answer is. The last column is "
+                "each bot's win rate against the equilibrium mix (Nash averaging, Balduzzi et al. 2018): "
+                "unlike the average against the field, it can't be inflated by adding weak bots.", ""]
         out.append(_md_table(
-            ["bot", "equilibrium weight", "bootstrap 95% range", "in the mix (share of resamples)"],
+            ["bot", "equilibrium weight", "bootstrap 95% range", "in the mix (share of resamples)",
+             "win rate vs the mix"],
             [[b, _pct(mix[b]), f"{_pct(boot.loc[b, 'low'])} – {_pct(boot.loc[b, 'high'])}",
-              _pct(boot.loc[b, "in_mix"], 0)] for b in bots]))
+              _pct(boot.loc[b, "in_mix"], 0), _pct(against_mix[b])] for b in bots]))
         out.append(f"\nGame value: {value:+.4f} (a symmetric zero-sum game is worth 0).")
         check = nashpy_check(M)
         if check is not None:
@@ -736,6 +769,13 @@ def summarize(games, out_dir, make_charts=True, run_info=None):
     out.append(_md_table(["games", "first player wins", "95% range", "games played"],
                          [[label, _pct(r["first_player_win_rate"]), f"{_pct(r['low'])} – {_pct(r['high'])}",
                            f"{int(r['n']):,}"] for label, r in fm.iterrows()]))
+
+    lengths = game_lengths(games, bots)
+    out += ["", "## Game length", "", "Median length in plies (one ply = one player's turn).", ""]
+    out.append(_md_table(["bot", "against other bots", "mirror matches"],
+                         [[b, "n/a" if pd.isna(r["vs_others"]) else f"{r['vs_others']:.0f}",
+                           "n/a" if pd.isna(r["mirror"]) else f"{r['mirror']:.0f}"]
+                          for b, r in lengths.iterrows()]))
 
     jacks = jack_usage(games, bots)
     out += ["", "## Jack use", "", "Average per game played."]
@@ -820,7 +860,7 @@ def main(argv=None):
     out_dir = args.out or os.path.dirname(args.csv) or "."
     os.makedirs(out_dir, exist_ok=True)
     run_info = None
-    info_path = os.path.splitext(args.csv)[0] + "_run.json"
+    info_path = run_info_path(args.csv)
     if os.path.exists(info_path):
         import json
         with open(info_path, encoding="utf-8") as f:

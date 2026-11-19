@@ -1,7 +1,7 @@
 """Compare two tournament runs.
 
-    python compare_runs.py results/full_run/games.csv results/replication/games.csv
-    python compare_runs.py results/full_run/games.csv results/values_steep/games.csv
+    python compare_runs.py results/pilot/games.csv.gz results/replication/games.csv
+    python compare_runs.py results/pilot/games.csv.gz results/values_steep/games.csv
 
 Use it for a replication (same bots on fresh deals: every difference should look
 like chance) or a sensitivity check (same bots under other line values or rules:
@@ -14,6 +14,7 @@ import itertools
 import os
 
 import numpy as np
+import pandas as pd
 
 import analysis
 
@@ -28,6 +29,20 @@ def _table(header, rows):
     return "\n".join(lines)
 
 
+def pairing_differences(Ma, Ha, Mb, Hb, bots):
+    """One row per pairing: win rate in each run, the difference (B - A), its z, and
+    whether it is beyond chance (|z| >= 1.96). The runs are treated as independent."""
+    rows = []
+    for a, b in itertools.combinations(bots, 2):
+        se = float(np.hypot(Ha.loc[a, b], Hb.loc[a, b])) / analysis.Z
+        diff = float(Mb.loc[a, b] - Ma.loc[a, b])
+        z = diff / se if se > 0 else float("nan")
+        rows.append({"a": a, "b": b, "rate_a": float(Ma.loc[a, b]), "margin_a": float(Ha.loc[a, b]),
+                     "rate_b": float(Mb.loc[a, b]), "margin_b": float(Hb.loc[a, b]), "diff": diff,
+                     "z": z, "beyond": bool(np.isfinite(z) and abs(z) >= analysis.Z)})
+    return pd.DataFrame(rows)
+
+
 def compare(path_a, path_b):
     """The comparison report as Markdown."""
     games_a, games_b = analysis.load_games(path_a), analysis.load_games(path_b)
@@ -39,18 +54,12 @@ def compare(path_a, path_b):
     Mb, Hb, _ = analysis.win_matrix(games_b, bots)
 
     out = ["# Comparison of two runs", "", f"- Run A: `{path_a}`", f"- Run B: `{path_b}`", ""]
-    rows, flagged = [], 0
-    for a, b in itertools.combinations(bots, 2):
-        se = float(np.hypot(Ha.loc[a, b], Hb.loc[a, b])) / analysis.Z
-        diff = Mb.loc[a, b] - Ma.loc[a, b]
-        z = diff / se if se > 0 else float("nan")
-        beyond = bool(np.isfinite(z) and abs(z) >= analysis.Z)
-        flagged += beyond
-        rows.append([f"{a} vs {b}",
-                     f"{_pct(Ma.loc[a, b])} ±{100 * Ha.loc[a, b]:.1f}",
-                     f"{_pct(Mb.loc[a, b])} ±{100 * Hb.loc[a, b]:.1f}",
-                     f"{100 * diff:+.1f}", f"{z:+.2f}" if np.isfinite(z) else "n/a",
-                     "beyond chance" if beyond else "within chance"])
+    diffs = pairing_differences(Ma, Ha, Mb, Hb, bots)
+    flagged = int(diffs["beyond"].sum())
+    rows = [[f"{r.a} vs {r.b}", f"{_pct(r.rate_a)} ±{100 * r.margin_a:.1f}",
+             f"{_pct(r.rate_b)} ±{100 * r.margin_b:.1f}", f"{100 * r.diff:+.1f}",
+             f"{r.z:+.2f}" if np.isfinite(r.z) else "n/a",
+             "beyond chance" if r.beyond else "within chance"] for r in diffs.itertuples()]
     pairs = len(rows)
     out += ["## Win rates", "",
             "Row bot's win rate against the column bot in each run. z is the difference divided "
@@ -82,7 +91,7 @@ def compare(path_a, path_b):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Compare two tournament CSVs.")
-    parser.add_argument("run_a", help="the reference run, e.g. results/full_run/games.csv")
+    parser.add_argument("run_a", help="the reference run, e.g. results/pilot/games.csv.gz")
     parser.add_argument("run_b", help="the run to compare with it")
     parser.add_argument("--out", help="where to save the report (default: comparison.md next to run_b)")
     args = parser.parse_args(argv)

@@ -15,9 +15,10 @@ Each iteration:
      nothing found beats the equilibrium.
 
 The search space is HeuristicBot's settings (SPACE below). Results go to --out:
-hunt_log.md (what happened at each iteration), pool_matrix.csv (the final pool's
-win rates) and games.csv (every game played, in the tournament format). To analyse
-the final pool properly, rerun it as a tournament with the command printed at the end.
+hunt_log.md (what happened at each iteration), hunt_log.json (the same, for
+plotting), pool_matrix.csv (the final pool's win rates) and games.csv.gz (every
+game played, in the tournament format). To analyse the final pool properly, rerun
+it as a tournament with the command printed at the end.
 
 References: McMahan, Gordon & Blum (2003), the double oracle; Lanctot et al. (2017),
 PSRO, its generalisation.
@@ -26,6 +27,7 @@ PSRO, its generalisation.
 import argparse
 import csv
 import itertools
+import json
 import math
 import os
 import random
@@ -35,7 +37,7 @@ import pandas as pd
 
 from analysis import Z, equilibrium
 from bots import heuristic_settings, make_bot
-from tournament import FIELDS, run_jobs
+from tournament import FIELDS, open_csv, run_jobs
 
 # The settings the hunt may change, and the values it tries for each.
 SPACE = {
@@ -216,12 +218,16 @@ def main(argv=None):
     log = ["# Counter-strategy hunt", "",
            f"Start pool: {', '.join(pool)}. Screening on {args.screen_deals} deals, "
            f"confirming on {args.confirm_deals} fresh deals per pairing.", ""]
+    record = {"settings": {k: v for k, v in vars(args).items() if k not in ("workers", "out")},
+              "start_pool": list(pool), "iterations": [], "final": None}
 
     def save_log():
         with open(os.path.join(args.out, "hunt_log.md"), "w", encoding="utf-8") as f:
             f.write("\n".join(log) + "\n")
+        with open(os.path.join(args.out, "hunt_log.json"), "w", encoding="utf-8") as f:
+            json.dump(record, f, indent=2)
 
-    with open(os.path.join(args.out, "games.csv"), "w", newline="") as f:
+    with open_csv(os.path.join(args.out, "games.csv.gz"), "w") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDS)
         writer.writeheader()
         arena = Arena(args.workers, writer, args.seed, args.max_turns)
@@ -273,6 +279,15 @@ def main(argv=None):
                 log.append(f"| {c} | {100 * estimate[c]:.1f}% | {100 * v:.1f}% | "
                            f"{100 * (v - Z * e):.1f}% to {100 * (v + Z * e):.1f}% |")
             log.append("")
+            record["iterations"].append({
+                "iteration": iteration, "pool": list(pool),
+                "mix": {b: float(w) for b, w in mix.items() if w > 1e-9},
+                "screened": len(candidates),
+                "screening": {c: {"estimate": estimate[c], "se": payoff(screen, c, support, weights)[1]}
+                              for c in candidates},
+                "finalists": [{"spec": c, "screening": estimate[c], "confirmed": confirmed[c][0],
+                               "se": confirmed[c][1]} for c in finalists],
+                "best": best, "value": value, "se": se, "added": bool(low > 0.5)})
             if low <= 0.5:
                 log += [f"Best: {best}, {100 * value:.1f}% ({100 * low:.1f}% to {100 * high:.1f}%). "
                         "Its interval includes 50%, so nothing found beats the equilibrium. Stopping.", ""]
@@ -294,10 +309,12 @@ def main(argv=None):
     M = pool_matrix(pool, stats)
     M.to_csv(os.path.join(args.out, "pool_matrix.csv"))
     command = (f"python tournament.py --bots {' '.join(pool)} --deals 2000 "
-               f"--out {os.path.join(args.out, 'final_pool', 'games.csv')}")
+               f"--out {os.path.join(args.out, 'final_pool', 'games.csv.gz')}")
     log += ["## Final pool", "", f"Pool: {', '.join(pool)}", "", f"Equilibrium: {_mix_text(mix)}", "",
             f"Games played: {arena.games:,}", "", "For a full analysis of the final pool, run:", "",
             f"    {command}", ""]
+    record["final"] = {"pool": list(pool), "mix": {b: float(w) for b, w in mix.items() if w > 1e-9},
+                       "games": arena.games}
     save_log()
     print(f"\nFinal equilibrium: {_mix_text(mix)}")
     print(f"{arena.games:,} games played. Log: {os.path.join(args.out, 'hunt_log.md')}")
