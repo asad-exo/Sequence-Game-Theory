@@ -1,0 +1,34 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Unit tests (include replaying a sample of every published game log)
+        run: python -m unittest -v tests
+      - name: Smoke test the scripts
+        run: |
+          T="$RUNNER_TEMP"
+          python tournament.py --roster pilot --deals 5 --workers 2 --out "$T/r/pilot/games.csv.gz"
+          python tournament.py --roster pilot --deals 5 --seed 100000 --workers 2 --out "$T/r/replication/games.csv.gz"
+          python tournament.py --bots mixed_save sampler:k=2,n=2 --deals 1 --no-mirror --workers 2 --out "$T/r/sampler/games.csv.gz"
+          python hunt.py --iterations 1 --screen-deals 2 --confirm-deals 4 --finalists 1 --random 0 --workers 2 --out "$T/r/hunt" > /dev/null
+          python analysis.py results/pilot/games.csv.gz --out "$T/pilot" > /dev/null
+          python compare_runs.py results/pilot/games.csv.gz "$T/r/replication/games.csv.gz" --out "$T/comparison.md" > /dev/null
+          python study.py --results "$T/r" --figures "$T/figures"
+          python play.py mixed counter --seed 3 > /dev/null
