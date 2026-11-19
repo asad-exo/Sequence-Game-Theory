@@ -1,0 +1,23 @@
+{
+  "bots": [
+    "mixed_save:defend=0",
+    "mixed_save:defend=0.25",
+    "mixed_save:defend=0.5",
+    "mixed_save:defend=0.75",
+    "mixed_save",
+    "mixed_save:defend=1.5",
+    "mixed_save:defend=2",
+    "mixed_save:defend=3",
+    "mixed_save:defend=4"
+  ],
+  "deals": 3000,
+  "seed": 400000,
+  "values": null,
+  "sequences_to_win": 2,
+  "max_turns": 500,
+  "mirror": true,
+  "games": 270000,
+  "python": "3.13.18",
+  "command": "python tournament.py --bots mixed_save:defend=0 mixed_save:defend=0.25 mixed_save:defend=0.5 mixed_save:defend=0.75 mixed_save mixed_save:defend=1.5 mixed_save:defend=2 mixed_save:defend=3 mixed_save:defend=4 --deals 3000 --seed 400000 --out results/sweep_defend/games.csv.gz",
+  "started": "2026-11-19 04:09:38"
+}

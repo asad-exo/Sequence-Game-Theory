@@ -1,0 +1,19 @@
+{
+  "bots": [
+    "random",
+    "builder",
+    "blocker",
+    "mixed",
+    "mixed_save"
+  ],
+  "deals": 5000,
+  "seed": 2026,
+  "values": "steep",
+  "sequences_to_win": 2,
+  "max_turns": 500,
+  "mirror": true,
+  "games": 150000,
+  "python": "3.13.18",
+  "command": "python tournament.py --roster pilot --values steep --deals 5000 --out results/values_steep/games.csv.gz",
+  "started": "2026-11-19 04:03:15"
+}

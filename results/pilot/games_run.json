@@ -1,0 +1,18 @@
+{
+  "bots": [
+    "random",
+    "builder",
+    "blocker",
+    "mixed",
+    "mixed_save"
+  ],
+  "deals": 5000,
+  "seed": 2026,
+  "values": null,
+  "sequences_to_win": 2,
+  "max_turns": 500,
+  "mirror": true,
+  "games": 150000,
+  "command": "python tournament.py --roster pilot --deals 5000 --seed 2026 --out results/pilot/games.csv.gz",
+  "note": "The pilot predates games_run.json. These settings were reconstructed and are verified by tests.py, which replays the pilot's games exactly with them."
+}

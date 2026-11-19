@@ -1,0 +1,19 @@
+{
+  "bots": [
+    "random",
+    "builder",
+    "blocker",
+    "mixed",
+    "mixed_save"
+  ],
+  "deals": 5000,
+  "seed": 5000000,
+  "values": null,
+  "sequences_to_win": 2,
+  "max_turns": 500,
+  "mirror": true,
+  "games": 150000,
+  "python": "3.13.18",
+  "command": "python tournament.py --roster pilot --deals 5000 --seed 5000000 --out results/replication2/games.csv.gz",
+  "started": "2026-11-19 04:23:52"
+}

@@ -1,0 +1,21 @@
+{
+  "bots": [
+    "logit:lam=0.03",
+    "logit:lam=0.1",
+    "logit:lam=0.3",
+    "logit",
+    "logit:lam=3",
+    "logit:lam=10",
+    "mixed_save"
+  ],
+  "deals": 3000,
+  "seed": 500000,
+  "values": null,
+  "sequences_to_win": 2,
+  "max_turns": 500,
+  "mirror": true,
+  "games": 168000,
+  "python": "3.13.18",
+  "command": "python tournament.py --bots logit:lam=0.03 logit:lam=0.1 logit:lam=0.3 logit logit:lam=3 logit:lam=10 mixed_save --deals 3000 --seed 500000 --out results/sweep_lambda/games.csv.gz",
+  "started": "2026-11-19 04:18:11"
+}

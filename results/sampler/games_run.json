@@ -1,0 +1,17 @@
+{
+  "bots": [
+    "mixed_save",
+    "counter",
+    "sampler"
+  ],
+  "deals": 300,
+  "seed": 600000,
+  "values": null,
+  "sequences_to_win": 2,
+  "max_turns": 500,
+  "mirror": false,
+  "games": 1800,
+  "python": "3.13.18",
+  "command": "python tournament.py --bots mixed_save counter sampler --deals 300 --seed 600000 --no-mirror --out results/sampler/games.csv.gz",
+  "started": "2026-11-19 04:27:57"
+}
