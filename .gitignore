@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Scratch output of quick runs with the default paths
+# (python tournament.py / python analysis.py results/games.csv).
+# Named experiment folders under results/, such as results/full/, are kept.
+results/*.csv
+results/*.csv.gz
+results/*.json
+results/*.md
+results/*.png
+!results/README.md
