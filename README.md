@@ -197,7 +197,7 @@ Simplifications:
   only becomes playable again if a one-eyed Jack clears one of its spaces.
 - When the draw pile runs out, the discards are reshuffled (0.2%–4.5% of games, depending on the
   run).
-- A player with no legal move passes. After 500 plies the game is a draw: 26 of the study's
+- A player without legal move passes. After 500 plies the game is a draw: 26 of the study's
   3.4 million games, most of them random against random.
 - Bots see a `PlayerView`: the board, their own hand, the face-up discards and the move history. They
   never see the opponent's hand or the deck.
