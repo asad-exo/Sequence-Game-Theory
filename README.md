@@ -167,7 +167,7 @@ python hunt.py --pool counter --out results/my_hunt      # counter-strategy hunt
 - **Multiple comparisons.** Claims that one bot beats another use a Holm correction over all pairings.
 - **Skill ladder vs cycles.** The matrix splits into a rating part (each bot's average edge) and a
   purely cyclic part (Balduzzi et al. 2018); the summary reports each share.
-- **Counter-strategy hunt.** The hunt screens many candidates on a few deals, then confirms the best on
+- **Counter-strategy hunt.** The hunt screens many candidates on some deals, then confirms the best on
   fresh deals. That avoids the winner's curse: the best of many noisy estimates is biased upward.
 - **Decision agreement.** To see how often an idea actually changes play, each strategy plays
   `mixed_save`. At each of its decisions, `mixed_save` scores the same position, which counts how
